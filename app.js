@@ -1,6 +1,6 @@
 const express=require("express");
 const mongoose=require("mongoose");
-// const userRoute=require("./routes/user");
+ const userRoute=require("./routes/user");
 
 
 const app=express();
@@ -20,7 +20,7 @@ mongoose.connection.on("error",(err)=>{
     console.log("error",err);
 });
 
-// app.use('/users',userRoute);  //user is the path
+app.use('/user',userRoute);  //user is the path
 const PORT=process.env.PORT||3000;
 
 app.listen(PORT,()=>{
