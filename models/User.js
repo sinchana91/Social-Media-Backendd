@@ -3,7 +3,7 @@ const userSchema=new mongoose.Schema({
 username:{
     type:String,
     unique:true,
-    reruired:true
+    required:true
 
 },
 

@@ -1,9 +1,11 @@
 const express=require("express");
 const mongoose=require("mongoose");
- const userRoute=require("./routes/user");
-
+const userRoute=require("./routes/user");
+const bodyParser=require("body-parser");
 
 const app=express();
+
+
 
 mongoose.connect("mongodb://localhost:27017/social_media",{
     useNewUrlParser:true,
@@ -19,6 +21,8 @@ mongoose.connection.on("connected",()=>{
 mongoose.connection.on("error",(err)=>{
     console.log("error",err);
 });
+
+app.use(bodyParser.json());
 
 app.use('/user',userRoute);  //user is the path
 const PORT=process.env.PORT||3000;

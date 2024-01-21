@@ -2,14 +2,15 @@ const User = require('../models/User');
 const bcrypt = require('bcrypt');
 
 
-const registerUser = async (req, res) => {
+const registerUser =  async (req, res) => {
   try {
+    console.log(req.body);
     const { username, email, password } = req.body;
 
     const hashedPassword = await bcrypt.hash(password, 10);
     const existingUser = await User.findOne({ $or: [{ username }, { email }] });
     if (existingUser) {
-      res.status(409).json("user already exist");
+      res.status(409).json({message:"user already exist"});
         return;
     }
 
@@ -25,7 +26,7 @@ const registerUser = async (req, res) => {
 };
 
 // Controller to handle user login
-const loginUser = async (req, res) => {
+const loginUser =  async (req, res) => {
   try {
     const { email, password } = req.body;
 
@@ -36,7 +37,8 @@ const loginUser = async (req, res) => {
     }
 
     // Check password
-    if (user.password !== password) {
+    match= await bcrypt.compare(password, user.hashedPassword);
+    if (!match) {
       return res.status(401).json({ message: 'Incorrect password.' });
     }
 
