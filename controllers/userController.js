@@ -11,7 +11,7 @@ const registerUser =  async (req, res) => {
     const existingUser = await User.findOne({ $or: [{ username }, { email }] });
     if (existingUser) {
       res.status(409).json({message:"user already exist"});
-        return;
+      return;
     }
 
     // Create a new user
