@@ -15,7 +15,7 @@ const registerUser =  async (req, res) => {
     }
 
     // Create a new user
-    const newUser = new User({ username, email, hashedPassword });
+    const newUser = new User({ username: username, email: email, password: hashedPassword });
     await newUser.save();
 
     res.status(200).json( newUser );
@@ -31,13 +31,13 @@ const loginUser =  async (req, res) => {
     const { email, password } = req.body;
 
     // Check if the user exists
-    const user = await User.findOne({ email });
+    const user = await User.findOne({email: email });
     if (!user) {
       return res.status(404).json({ message: 'User not found.' });
     }
 
     // Check password
-    match= await bcrypt.compare(password, user.hashedPassword);
+    match= await bcrypt.compare(password, user.password);
     if (!match) {
       return res.status(401).json({ message: 'Incorrect password.' });
     }
