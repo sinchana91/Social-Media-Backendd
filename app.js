@@ -2,6 +2,8 @@ const express = require("express");
 const mongoose = require("mongoose");
 const userRoute = require("./routes/user");
 const bodyParser = require("body-parser");
+const postRoute = require("./routes/post");
+const authMiddleware = require("./middlewares/auth");
 
 const app = express();
 
@@ -22,6 +24,7 @@ mongoose.connection.on("error", (err) => {
 });
 
 app.use(bodyParser.json());
+app.use(authMiddleware)
 
 app.get('/', (req, res) => {
     res.send({
@@ -30,6 +33,8 @@ app.get('/', (req, res) => {
 });
 
 app.use('/user', userRoute);  //user is the path
+app.use('/post', postRoute);
+
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
