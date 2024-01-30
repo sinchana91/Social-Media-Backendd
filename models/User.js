@@ -16,6 +16,14 @@ password:{
     type:String,
     required:true
 },
+postsCount:{
+    type:Number,
+    default:0
+},
+isDirectSelected: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User' // Reference to the User model
+}
 },{timeStamps:true}
 )
 module.exports=mongoose.model("User",userSchema)

@@ -1,11 +1,11 @@
 const express = require("express");
 const router=express.Router();
 const postController=require("../controllers/postController");
-const authMiddleware=require("../middlewares/auth");
+// const authMiddleware=require("../middlewares/auth");
 
-router.post("/:username",authMiddleware,postController.createPost);
-router.get("/",authMiddleware,postController.getAllPosts);
-router.get("/:id",authMiddleware,postController.getPost);
-router.delete("/:id",authMiddleware,postController.deletePost);
+router.post("/:username",postController.createPost);
+router.get("/",postController.getAllPosts);
+router.get("/:id",postController.getPost);
+router.delete("/:id",postController.deletePost);
 
 module.exports=router;

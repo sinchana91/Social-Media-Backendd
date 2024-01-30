@@ -5,7 +5,7 @@ const postSchema=new mongoose.Schema({
     username:{
         type:mongoose.Schema.Types.ObjectId,
         ref:"User",
-        required:true,
+        required:false,
     },
     desc:{
         type:String,
@@ -17,7 +17,6 @@ const postSchema=new mongoose.Schema({
     },
    locations:{
         type:String,
-        
         required:false,
     },
     mentions:[{

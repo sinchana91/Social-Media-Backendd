@@ -3,7 +3,7 @@ const User=require("../models/User");
 
 const createPost=async(req,res)=>{
     try{
-    const {desc,media,locations,mentions,tags,visibility,hashtags,originalPost}=req.body;
+    const {desc,media,locations,mentions,tags,visibility,hashtags,originalPost,reactions}=req.body;
     const user=await User.findOne({username:req.params.username});
     if(!user){
         return res.status(404).json("user not found");
@@ -17,13 +17,18 @@ const createPost=async(req,res)=>{
         mentions:   mentions,
         tags:tags,
         visibility:visibility,
+        likesCount:0,
+        commentsCount:0,
+        sharesCount:0,
         hashtags:hashtags,
         originalPost:   originalPost,
+        reactions:reactions,
     });
     await newPost.save();
-    await User.findByIdAndUpdate(user.isDirectSelected,{
-        $inc:{postsCount:1},
-    });
+    await User.findByIdAndUpdate(user.isDirectSelected, {
+        $inc: { postsCount: 1 },
+    }).exec();
+    res.status(200).json(newPost);
 }catch(err){
     console.log(err);
     res.status(500).json({message:"Internal server error"});
@@ -59,7 +64,7 @@ const deletePost=async(req,res)=>{
         if(!post){
             return res.status(404).json("post not found");
         }
-        await post.delete();
+        await post.deleteOne();
         res.status(200).json("post deleted");
     }catch(err){
         console.log(err);
