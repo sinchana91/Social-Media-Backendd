@@ -146,4 +146,42 @@ const unlikePost=async(req,res)=>{
     }
 }
 
-module.exports={createPost,getAllPosts,getPost,deletePost,likePost,commentPost,sharePost,unlikePost};
+const getPostsByUser=async(req,res)=>{
+    try{
+        const user=await User.findOne({username:req.params.user._id});
+        if(!user){
+            return res.status(404).json("user not found");
+        }
+        const posts=await Post.find({username:user._id});
+        res.status(200).json(posts);
+    }catch(err){
+        console.log(err);
+        res.status(500).json({message:"Internal server error"});
+    }
+}
+
+const getPostsByHashtag=async(req,res)=>{
+    try{
+        const posts=await Post.find({hashtags:req.params.hashtag});
+        res.status(200).json(posts);
+    }catch(err){
+        console.log(err);
+        res.status(500).json({message:"Internal server error"});
+    }
+}
+
+const updatereactions=async(req,res)=>{
+    try{
+        const post=await Post.findById(req.params.id);
+        if(!post){
+            return res.status(404).json("post not found");
+        }
+        post.reactions.push(req.body);
+        await post.save();
+        res.status(200).json(post);
+    }catch(err){
+        console.log(err);
+        res.status(500).json({message:"Internal server error"});
+    }
+}
+module.exports={createPost,getAllPosts,getPost,deletePost,likePost,commentPost,sharePost,unlikePost,getPostsByUser,getPostsByHashtag,updatereactions};

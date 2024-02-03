@@ -12,5 +12,9 @@ router.put("/:id",postController.likePost);
 router.put("/:id",postController.commentPost);
 router.put("/:id",postController.sharePost);
 router.put("/:id",postController.unlikePost);
+router.get("/:user",postController.getPostsByUser);
+router.get("/:hashtag",postController.getPostsByHashtag);
+router.put("/:id",postController.updatereactions);
+
 
 module.exports=router;
