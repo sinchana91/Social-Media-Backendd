@@ -72,4 +72,24 @@ const deletePost=async(req,res)=>{
     }
 }
 
-module.exports={createPost,getAllPosts,getPost,deletePost};
+const likePost=async(req,res)=>{
+    try{
+        const post=await Post.findById(req.params.id);
+        if(!post){
+            return res.status(404).json({message:"post not found"});
+        }
+        if(post.likes.includes(req.user._id)){
+            return res.status(400).json({message:"You already liked this post"});
+        }
+        post.likesCount+=1;
+        post.likes.push(req.user._id);
+        await post.save();
+        res.status(200).json(post);
+    }
+    catch(err){
+        console.log(err);
+        res.status(500).json({message:"Internal server error"});
+    }
+}
+
+module.exports={createPost,getAllPosts,getPost,deletePost,likePost};
