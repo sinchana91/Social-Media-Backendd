@@ -82,7 +82,61 @@ const likePost=async(req,res)=>{
             return res.status(400).json({message:"You already liked this post"});
         }
         post.likesCount+=1;
-        post.likes.push(req.user._id);
+        // post.likes.push(req.user._id);
+        await post.save();
+        res.status(200).json(post);
+    }
+    catch(err){
+        console.log(err);
+        res.status(500).json({message:"Internal server error"});
+    }
+}
+//check logic
+const sharePost=async(req,res)=>{
+    try{
+        const post=await Post.findById(req.params.id);
+        if(!post){
+            return res.status(404).json({message:"post not found"});
+        }
+        post.sharesCount+=1;
+        // post.shares.push(req.user._id);
+        await post.save();
+        res.status(200).json(post);
+    }
+    catch(err){
+        console.log(err);
+        res.status(500).json({message:"Internal server error"});
+    }
+}
+const commentPost=async(req,res)=>{
+    try{
+       const {postId}=req.params;
+       const {comment}=req.body;
+       const post =await Post.findById(postId);
+         if(!post){
+              return res.status(404).json({message:"post not found"});
+         }
+        post.commentsCount+=1;
+        // post.comments.push(comment);
+        await post.save();
+        res.status(200).json(post);
+    }
+    catch(err){
+        console.log(err);
+        res.status(500).json({message:"Internal server error"});
+    }
+}
+const unlikePost=async(req,res)=>{
+    try{
+        const post=await Post.findById(req.params.id);
+        if(!post){
+            return res.status(404).json({message:"post not found"});
+        }
+        if(!post.likes.includes(req.user._id)){
+            return res.status(400).json({message:"You have not liked this post"});
+        }
+        post.likesCount-=1;
+        post.likes=post.likes.filter((like)=>like.toString()!==req.user._id);
         await post.save();
         res.status(200).json(post);
     }
@@ -92,4 +146,4 @@ const likePost=async(req,res)=>{
     }
 }
 
-module.exports={createPost,getAllPosts,getPost,deletePost,likePost};
+module.exports={createPost,getAllPosts,getPost,deletePost,likePost,commentPost,sharePost,unlikePost};

@@ -9,5 +9,8 @@ router.get("/",postController.getAllPosts);
 router.get("/:id",postController.getPost);
 router.delete("/:id",postController.deletePost);
 router.put("/:id",postController.likePost);
+router.put("/:id",postController.commentPost);
+router.put("/:id",postController.sharePost);
+router.put("/:id",postController.unlikePost);
 
 module.exports=router;
