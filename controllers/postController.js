@@ -184,4 +184,5 @@ const updatereactions=async(req,res)=>{
         res.status(500).json({message:"Internal server error"});
     }
 }
+
 module.exports={createPost,getAllPosts,getPost,deletePost,likePost,commentPost,sharePost,unlikePost,getPostsByUser,getPostsByHashtag,updatereactions};
