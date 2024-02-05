@@ -3,11 +3,12 @@ const User=require("../models/User");
 const follow=async (req,res)=>{
     try{
     const followingId=req.body.followingId;
-    const followerId=req.params.id;
-    if(followerId===followingId){
+    const userId=req.params.id;
+    if(userId===followingId){
         return res.status(400).json({message:"You cannot follow yourself"});
     }
-    const existingRelationship=await User.findOne({follower:followerId,following:followingId})
+    const existingRelationship=await User.findOne({username:userId.username,following:followingId})
+    console.log(existingRelationship);
     
         if(existingRelationship){
             if(existingRelationship.status==="accepted"){
@@ -18,8 +19,9 @@ const follow=async (req,res)=>{
             }
         }
         else{
-            existingRelationship.following.push(followingId);
-            
+            const newRelationship=await User.findOne({username:userId.username});
+            newRelationship.following.push(followingId);
+
             await newRelationship.save()
             
             return res.status(200).json({message:"Follow request sent successfully"});
@@ -40,14 +42,12 @@ const unfollow=async (req,res)=>{
     if(followerId===followingId){
         return res.status(400).json({message:"You cannot unfollow yourself"});
     }
-    const existingRelationship=await Relationship.findOne({follower:followerId,following:followingId})
-    
-        if(existingRelationship){
-            if(existingRelationship.status==="accepted"){
-                existingRelationship.status="rejected";
-                await existingRelationship.save()
-                
-                    return res.status(200).json({message:"Unfollowed successfully"});
+    const existingRelationship=await User.findOne({follower:followerId,following:followingId})
+    if(existingRelationship){
+        if(existingRelationship.status==="accepted"){
+            existingRelationship.status="rejected";
+            await existingRelationship.save()
+            return res.status(200).json({message:"Unfollowed successfully"});
                 }
                 
             else if(existingRelationship.status==="pending"){
