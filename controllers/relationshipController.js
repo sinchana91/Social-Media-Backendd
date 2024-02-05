@@ -1,13 +1,27 @@
 const User=require("../models/User");
 
+const updateFollowingList = async(req,res)=>{
+    if (req.body.type=== "follow" ){
+        await follow(req,res)
+    }
+    else if (req.body.type==="unfollow"){
+        await unfollow(req, res)
+    }
+}
+
 const follow=async (req,res)=>{
     try{
     const followingId=req.body.followingId;
-    const userId=req.params.id;
+    const username=req.params.username;
+    // console.log(username);
+    const user=await User.findOne({username:username});
+    // console.log(user)
+    const userId=user._id;
+    // console.log(userId);
     if(userId===followingId){
         return res.status(400).json({message:"You cannot follow yourself"});
     }
-    const existingRelationship=await User.findOne({username:userId.username,following:followingId})
+    const existingRelationship=await User.findOne({username:username,following:followingId})
     console.log(existingRelationship);
     
         if(existingRelationship){
@@ -19,10 +33,10 @@ const follow=async (req,res)=>{
             }
         }
         else{
-            const newRelationship=await User.findOne({username:userId.username});
-            newRelationship.following.push(followingId);
+            
+            user.following.push(followingId);
 
-            await newRelationship.save()
+            await user.save()
             
             return res.status(200).json({message:"Follow request sent successfully"});
             }
@@ -37,12 +51,17 @@ const follow=async (req,res)=>{
 
 const unfollow=async (req,res)=>{
     try{
-    const followingId=req.body;
-    const followerId=req.params.id;
-    if(followerId===followingId){
-        return res.status(400).json({message:"You cannot unfollow yourself"});
-    }
-    const existingRelationship=await User.findOne({follower:followerId,following:followingId})
+        const followingId=req.body.followingId;
+        const username=req.params.username;
+        // console.log(username);
+        const user=await User.findOne({username:username});
+        // console.log(user)
+        const userId=user._id;
+        // console.log(userId);
+        if(userId===followingId){
+            return res.status(400).json({message:"You cannot follow yourself"});
+        }
+    const existingRelationship=await User.findOne({username:username,following:followingId})
     if(existingRelationship){
         if(existingRelationship.status==="accepted"){
             existingRelationship.status="rejected";
@@ -63,28 +82,79 @@ const unfollow=async (req,res)=>{
     
 }
 }
-//get all relationship of the user
-const getRelationships=async (req,res)=>{
+
+const acceptrequest=async (req,res)=>{
     try{
-    const userId=req.params.id;
-    const relationships =await Relationship.find({follower:userId}).populate("following")
-   
-    
-        return res.status(200).json(relationships);
-    }
-    catch(error){
+        const followerId=req.body.followerId;
+        const username=req.params.username;
+        const user=await User.findOne({username:username});
+        if(!user){
+            return res.status(400).json({message:"User does not exist"});
+        }
+        const userId=user._id;
+        if(userId===followerId){
+            return res.status(400).json({message:"You cannot follow yourself"});
+        }
+        const existingRelationship=await User.findOne({username:username,follower:followerId});
+        if(existingRelationship.status==="accepted"){
+            return res.status(400).json({message:"You are already following this user"});
+        }else{
+            existingRelationship.status="accepted";
+            await existingRelationship.save();
+            return res.status(200).json({message:"Follow request accepted successfully"});
+          
+        }
+    }catch(error){
+        console.log(error);
         return res.status(500).json({message:"Internal server error"});
     }
 }
 //get all followers of the user
 const getFollowers=async (req,res)=>{
     try{
-    const userId=req.params.id;
-    const relationships=await Relationship.find({following:userId}).populate("follower")
-    return res.status(200).json(relationships);
+    const username=req.params.username;
+    const followers =await User.find({username:username}).populate("follower");
+    return res.status(200).json(followers);
     }
     catch(error){
         return res.status(500).json({message:"Internal server error"});
     }
 }
-module.exports={follow,unfollow,getRelationships,getFollowers};
+//get all followings of the user
+const getFollowing=async (req,res)=>{
+    try{
+    const username=req.params.username;
+    const followings =await User.find({username:username}).populate("following");
+    return res.status(200).json(followings);
+    }
+    catch(error){
+        return res.status(500).json({message:"Internal server error"});
+    }
+}
+
+const rejectedrequest=async (req,res)=>{
+    try{
+        const followerId=req.body.followerId;
+        const username=req.params.username;
+        const user=await User.findOne({username:username});
+        console.log(user);
+        const userId=user._id;
+        if(userId===followerId){
+            return res.status(400).json({message:"You cannot follow yourself"});
+        }
+        const existingRelationship=await User.findOne({username:username,follower:followerId}).$where("this.status==='pending'");
+        console.log(existingRelationship);
+        if(existingRelationship.status==="rejected"){
+            return res.status(400).json({message:"You have already rejected this user"});
+        }
+        else{
+            existingRelationship.status="rejected";
+            await existingRelationship.save();
+            return res.status(200).json({message:"Follow request rejected successfully"});
+        }
+    }catch(error){
+        console.log(error);
+        return res.status(500).json({message:"Internal server error"});
+    }
+}
+module.exports={follow,unfollow,getFollowers,getFollowing,updateFollowingList,acceptrequest,rejectedrequest};

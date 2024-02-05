@@ -3,9 +3,12 @@ const router=express.Router();
 const relationshipController=require("../controllers/relationshipController");
 // const authMiddleware=require("../middlewares/auth");
 
-router.post("/:id/follow",relationshipController.follow);
-router.post("/:id/unfollow",relationshipController.unfollow);
-router.get("/:id/followers",relationshipController.getFollowers);
-router.get("/:id/following",relationshipController.getRelationships);
+router.post("/:username",relationshipController.updateFollowingList);
+// router.post("/:username/unfollow",relationshipController.unfollow);
+router.get("/:username/followers",relationshipController.getFollowers);
+router.get("/:username/following",relationshipController.getFollowing);
+router.post("/:username/acceptrequest",relationshipController.acceptrequest);
+router.post("/:username/rejectedrequest",relationshipController.rejectedrequest);
+
 
 module.exports=router;
