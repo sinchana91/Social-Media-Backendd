@@ -16,6 +16,24 @@ password:{
     type:String,
     required:true
 },
+follower:[{
+    type:mongoose.Schema.Types.ObjectId,
+    ref:"User",
+    required:false,
+}],
+
+following:[{
+    type:mongoose.Schema.Types.ObjectId,
+    ref:"User",
+    
+    required:false,
+},],
+
+status:{
+    type:String,
+    enum:["accepted","pending","rejected"],
+    default:"pending",
+},
 postsCount:{
     type:Number,
     default:0

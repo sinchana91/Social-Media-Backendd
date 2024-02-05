@@ -78,9 +78,9 @@ const likePost=async(req,res)=>{
         if(!post){
             return res.status(404).json({message:"post not found"});
         }
-        if(post.likes.includes(req.user._id)){
-            return res.status(400).json({message:"You already liked this post"});
-        }
+        // if(post.likesCount.includes(req.user._id)){
+        //     return res.status(400).json({message:"You already liked this post"});
+        // }
         post.likesCount+=1;
         // post.likes.push(req.user._id);
         await post.save();
@@ -110,10 +110,11 @@ const sharePost=async(req,res)=>{
 }
 const commentPost=async(req,res)=>{
     try{
-       const {postId}=req.params;
-       const {comment}=req.body;
+       const postId=req.params.id;
+    //    const {comment}=req.body;
        const post =await Post.findById(postId);
          if(!post){
+            console.log(post);
               return res.status(404).json({message:"post not found"});
          }
         post.commentsCount+=1;
@@ -132,11 +133,11 @@ const unlikePost=async(req,res)=>{
         if(!post){
             return res.status(404).json({message:"post not found"});
         }
-        if(!post.likes.includes(req.user._id)){
-            return res.status(400).json({message:"You have not liked this post"});
-        }
+        // if(!post.likes.includes(req.user._id)){
+        //     return res.status(400).json({message:"You have not liked this post"});
+        // }
         post.likesCount-=1;
-        post.likes=post.likes.filter((like)=>like.toString()!==req.user._id);
+        // post.likes=post.likes.filter((like)=>like.toString()!==req.user._id);
         await post.save();
         res.status(200).json(post);
     }
@@ -148,7 +149,7 @@ const unlikePost=async(req,res)=>{
 
 const getPostsByUser=async(req,res)=>{
     try{
-        const user=await User.findOne({username:req.params.user._id});
+        const user=await User.findById(req.params.id);
         if(!user){
             return res.status(404).json("user not found");
         }

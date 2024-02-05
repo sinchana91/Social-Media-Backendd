@@ -1,14 +1,13 @@
-const Relationship=require("../models/Relationship");
 const User=require("../models/User");
 
 const follow=async (req,res)=>{
     try{
-    const followingId=req.body;
+    const followingId=req.body.followingId;
     const followerId=req.params.id;
     if(followerId===followingId){
         return res.status(400).json({message:"You cannot follow yourself"});
     }
-    const existingRelationship=await Relationship.findOne({follower:followerId,following:followingId})
+    const existingRelationship=await User.findOne({follower:followerId,following:followingId})
     
         if(existingRelationship){
             if(existingRelationship.status==="accepted"){
@@ -19,16 +18,15 @@ const follow=async (req,res)=>{
             }
         }
         else{
-            const newRelationship=new Relationship({
-                follower:followerId,
-                following:followingId,
-            });
+            existingRelationship.following.push(followingId);
+            
             await newRelationship.save()
             
             return res.status(200).json({message:"Follow request sent successfully"});
             }
         }
             catch(error){
+                console.log(error);
                 return res.status(500).json({message:"Internal server error"});
             };
         

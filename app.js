@@ -6,6 +6,7 @@ const postRoute = require("./routes/post");
 // const authMiddleware = require("./middlewares/auth");
 const relationshipRoute = require("./routes/relationship");
 const hashtagRoute = require("./routes/hashtag");
+
 const app = express();
 
 require('dotenv').config()
@@ -37,6 +38,7 @@ app.use('/user', userRoute);  //user is the path
 app.use('/post', postRoute);
 app.use('/relationship', relationshipRoute);
 app.use('/hashtag', hashtagRoute);
+
 
 
 const PORT = process.env.PORT || 3000;
