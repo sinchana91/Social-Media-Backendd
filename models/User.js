@@ -38,10 +38,6 @@ following:[{
     
     required:false,
 },],
-
-
-
-
 postsCount:{
     type:Number,
     default:0

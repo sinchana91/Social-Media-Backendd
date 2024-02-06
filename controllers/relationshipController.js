@@ -25,18 +25,27 @@ const follow=async (req,res)=>{
     console.log(existingRelationship);
     
         if(existingRelationship){
-            if(existingRelationship.statusbar==="accepted"){
+            if(existingRelationship.following.statusbar==="accepted"){
                 return res.status(400).json({message:"You are already following this user"});
             }
-            else if(existingRelationship.statusbar==="pending"){
+            else if(existingRelationship.following.statusbar==="pending"){
                 return res.status(400).json({message:"You have already sent a follow request to this user"});
             }
         }
         else{
+            const other=await User.findOne({_id:followingId});
+            if(!other){
+                return res.status(400).json({message:"User does not exist"});
+            }
+            other.follower.push({
+                _id:userId,
+                statusbar:"pending",
+            });
             user.following.push({
                 _id: followingId,
                 statusbar: "pending",
             });
+            
             await user.save()
             
             return res.status(200).json({message:"Follow request sent successfully"});
@@ -69,7 +78,15 @@ const unfollow=async (req,res)=>{
         );
 
         if (existingRelationship) {
-            existingRelationship.statusbar = "rejected";
+            const other=await User.findOne({_id:followingId});
+            if(!other){
+                return res.status(400).json({message:"User does not exist"});
+            }
+            other.follower.pop(userId).statusbar = "rejected";
+            await other.save();
+            
+           
+            existingRelationship.follow.statusbar = "rejected";
             await user.save();
             return res.status(200).json({ message: "Unfollowed successfully" });
         } else {
@@ -130,29 +147,29 @@ const getFollowing=async (req,res)=>{
     }
 }
 
-// const rejectedrequest=async (req,res)=>{
-//     try{
-//         const requestId=req.body.followerId;
-//         const username=req.params.username;
-//         const user=await User.findOne({username:username});
-//         console.log(user);
-//         const userId=user._id;
-//         if(userId===followerId){
-//             return res.status(400).json({message:"You cannot follow yourself"});
-//         }
-//         const existingRelationship=await User.findOne({username:username,follower:followerId}).$where("this.status==='pending'");
-//         console.log(existingRelationship);
-//         if(existingRelationship.status==="rejected"){
-//             return res.status(400).json({message:"You have already rejected this user"});
-//         }
-//         else{
-//             existingRelationship.status="rejected";
-//             await existingRelationship.save();
-//             return res.status(200).json({message:"Follow request rejected successfully"});
-//         }
-//     }catch(error){
-//         console.log(error);
-//         return res.status(500).json({message:"Internal server error"});
-//     }
-// }
-module.exports={follow,unfollow,getFollowers,getFollowing,updateFollowingList,acceptrequest};
+const rejectedrequest=async (req,res)=>{
+    try{
+        const followerId=req.body.followerId;
+        const username=req.params.username;
+        const user=await User.findOne({username:username});
+        console.log(user);
+        const userId=user._id;
+        if(userId===followerId){
+            return res.status(400).json({message:"You cannot follow yourself"});
+        }
+        const existingRelationship=await User.findOne({username:username,follower:followerId}).$where("this.status==='pending'");
+        console.log(existingRelationship);
+        if(existingRelationship.status==="rejected"){
+            return res.status(400).json({message:"You have already rejected this user"});
+        }
+        else{
+            existingRelationship.status="rejected";
+            await existingRelationship.save();
+            return res.status(200).json({message:"Follow request rejected successfully"});
+        }
+    }catch(error){
+        console.log(error);
+        return res.status(500).json({message:"Internal server error"});
+    }
+}
+module.exports={follow,unfollow,getFollowers,getFollowing,updateFollowingList,acceptrequest,rejectedrequest};
