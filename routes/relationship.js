@@ -8,7 +8,7 @@ router.post("/:username",relationshipController.updateFollowingList);
 router.get("/:username/followers",relationshipController.getFollowers);
 router.get("/:username/following",relationshipController.getFollowing);
 router.post("/:username/acceptrequest",relationshipController.acceptrequest);
-router.post("/:username/rejectedrequest",relationshipController.rejectedrequest);
+
 
 
 module.exports=router;

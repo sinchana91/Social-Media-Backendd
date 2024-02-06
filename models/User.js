@@ -19,23 +19,29 @@ password:{
 follower:[{
     type:mongoose.Schema.Types.ObjectId,
     ref:"User",
+    statusbar:{
+        type:String,
+        enum:["accepted","pending","rejected"],
+        default:"pending"
+    },
     required:false,
 }],
 
 following:[{
     type:mongoose.Schema.Types.ObjectId,
     ref:"User",
+    statusbar:{
+        type:String,
+        enum:["accepted","pending","rejected"],
+        default:"pending"
+    },
     
     required:false,
 },],
 
 
 
-status:{
-    type:String,
-    enum:["accepted","pending","rejected","none"],
-    default:"none",
-},
+
 postsCount:{
     type:Number,
     default:0
