@@ -29,10 +29,12 @@ following:[{
     required:false,
 },],
 
+
+
 status:{
     type:String,
-    enum:["accepted","pending","rejected"],
-    default:"pending",
+    enum:["accepted","pending","rejected","none"],
+    default:"none",
 },
 postsCount:{
     type:Number,

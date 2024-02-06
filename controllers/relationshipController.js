@@ -34,7 +34,7 @@ const follow=async (req,res)=>{
         }
         else{
             
-            user.following.push(followingId);
+            user.followrequestlist.push(followingId);
 
             await user.save()
             
@@ -48,6 +48,7 @@ const follow=async (req,res)=>{
         
     
 }
+
 
 const unfollow=async (req,res)=>{
     try{
