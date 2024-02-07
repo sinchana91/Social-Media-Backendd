@@ -111,13 +111,22 @@ const acceptrequest=async (req,res)=>{
             return res.status(400).json({message:"You cannot follow yourself"});
         }
         const existingRelationship=await User.findOne({username:username,follower:requestId});
-        if(existingRelationship.statusbar==="accepted"){
-            return res.status(400).json({message:"You are already following this user"});
-        }else{
-            existingRelationship.statusbar="accepted";
+        if (!existingRelationship) {
+            return res.status(400).json({ message: "Relationship not found" });
+        }
+
+        if (existingRelationship.statusbar === "accepted") {
+            return res.status(400).json({ message: "You are already following this user" });
+        } else {
+            const other=await User.findOne({_id:requestId});
+            if(!other){
+                return res.status(400).json({message:"User does not exist"});
+            }
+            other.following.statusbar = "accepted";
+            await other.save();
+            existingRelationship.follower.statusbar = "accepted";            
             await existingRelationship.save();
-            return res.status(200).json({message:"Follow request accepted successfully"});
-          
+            return res.status(200).json({ message: "Follow request accepted successfully" });
         }
     }catch(error){
         console.log(error);
