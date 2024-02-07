@@ -36,25 +36,24 @@ A social media platform where users can connect, share posts, send messages, and
    ```bash
    git clone https://github.com/your-username/social-media-platform.git
 Install dependencies:
-
-bash
-Copy code
-cd social-media-platform
-npm install
+  ```bash
+  cd social-media-platform
+  npm install
+```
 Set up environment variables:
 Create a .env file in the project root and add the following variables:
 
-env
-Copy code
+```env
 PORT=3000
 SECRET_KEY=your-secret-key
 DATABASE_URI=mongodb://localhost:27017/social-media-db
+```
 Usage
 Start the server:
 
-bash
-Copy code
+```bash
 npm start
+```
 Access the application:
 Visit http://localhost:3000 (or the specified port) in your web browser.
 
