@@ -12,16 +12,12 @@ const follow = async (req, res) => {
     try {
         const followingId = req.body.followingId;
         const username = req.params.username;
-
         const user = await User.findOne({ username: username });
         const userId = user._id;
-
         if (userId === followingId) {
             return res.status(400).json({ message: "You cannot follow yourself" });
         }
-
         const existingRelationship = await User.findOne({ username: username, following: followingId });
-
         if (existingRelationship) {
             if (existingRelationship.following.statusbar === "accepted") {
                 return res.status(400).json({ message: "You are already following this user" });
@@ -30,23 +26,19 @@ const follow = async (req, res) => {
             }
         } else {
             const other = await User.findOne({ _id: followingId });
-
             if (!other) {
                 return res.status(400).json({ message: "User to follow does not exist" });
             }
-
             other.follower.push({
                 _id: userId,
                 statusbar: "pending",
             });
-
+            await other.save();
             user.following.push({
                 _id: followingId,
                 statusbar: "pending",
             });
-
             await user.save();
-
             return res.status(200).json({ message: "Follow request sent successfully" });
         }
     } catch (error) {
@@ -59,36 +51,28 @@ const unfollow = async (req, res) => {
     try {
         const followingId = req.body.followingId;
         const username = req.params.username;
-
         const user = await User.findOne({ username: username });
         const userId = user._id;
-
         if (userId.toString() === followingId) {
             return res.status(400).json({ message: "You cannot unfollow yourself" });
         }
-
-        const existingRelationship = user.following.find(
-            (follow) => follow._id.toString() === followingId && follow.statusbar === "accepted"
-        );
-
-        if (existingRelationship) {
-            const other = await User.findOne({ _id: followingId });
-
-            if (!other) {
-                return res.status(400).json({ message: "User to unfollow does not exist" });
-            }
-
-            other.follower = other.follower.filter((follower) => follower._id.toString() !== userId.toString());
-            await other.save();
-
+        const existingRelationship = await User.findOne({ username: username, following: followingId });
+        if (!existingRelationship) {
+            return res.status(400).json({ message: "Relationship not found" });
+        }
+        if (existingRelationship.statusbar === "accepted") {
             existingRelationship.statusbar = "rejected";
-            await user.save();
+            await existingRelationship.save();
 
-            return res.status(200).json({ message: "Unfollowed successfully" });
-        } else {
+            const other = await User.findOne({ _id: followingId });
+            if (other) {
+                    other.statusbar = "rejected";
+                    await other.save();
+                    return res.status(200).json({ message: "Unfollowed successfully" });
+        }} else {
             return res.status(400).json({ message: "You are not following this user" });
         }
-    } catch (error) {
+    }catch (error) {
         console.error(error);
         return res.status(500).json({ message: "Internal server error" });
     }
@@ -98,25 +82,18 @@ const acceptrequest = async (req, res) => {
     try {
         const requestId = req.body.followerId;
         const username = req.params.username;
-
         const user = await User.findOne({ username: username });
-
         if (!user) {
             return res.status(400).json({ message: "User does not exist" });
         }
-
         const userId = user._id;
-
         if (userId === requestId) {
             return res.status(400).json({ message: "You cannot follow yourself" });
         }
-
-        const existingRelationship = await User.findOne({ username: username, follower: requestId });
-
+        const existingRelationship = await User.findOne({ username: username, follower: requestId});
         if (!existingRelationship) {
             return res.status(400).json({ message: "Relationship not found" });
         }
-
         if (existingRelationship.statusbar === "accepted") {
             return res.status(400).json({ message: "You are already following this user" });
         } else {
@@ -125,13 +102,10 @@ const acceptrequest = async (req, res) => {
             if (!other) {
                 return res.status(400).json({ message: "User does not exist" });
             }
-
             other.following.statusbar = "accepted";
             await other.save();
-
             existingRelationship.follower.statusbar = "accepted";
             await existingRelationship.save();
-
             return res.status(200).json({ message: "Follow request accepted successfully" });
         }
     } catch (error) {
@@ -164,26 +138,26 @@ const rejectedrequest = async (req, res) => {
     try {
         const followerId = req.body.followerId;
         const username = req.params.username;
-
         const user = await User.findOne({ username: username });
-
         const userId = user._id;
-
         if (userId === followerId) {
             return res.status(400).json({ message: "You cannot follow yourself" });
         }
-
-        const existingRelationship = await User.findOne({ username: username, follower: followerId }).$where("this.status==='pending'");
-
+        const existingRelationship = await User.findOne({ username: username, follower: followerId })
         if (!existingRelationship) {
             return res.status(400).json({ message: "Relationship not found" });
         }
-
-        if (existingRelationship.status === "rejected") {
+        if (existingRelationship.follower.statusbar === "rejected") {
             return res.status(400).json({ message: "You have already rejected this user" });
-        } else {
-            existingRelationship.status = "rejected";
+        }
+        else if(existingRelationship.follower.statusbar === "accepted") {
+            return res.status(400).json({ message: "You are already accepted the request" });
+        }else {
+            existingRelationship.follower.statusbar = "rejected";
             await existingRelationship.save();
+            const other = await User.findOne({ _id: followerId });
+            other.following.statusbar = "rejected";
+            await other.save();
             return res.status(200).json({ message: "Follow request rejected successfully" });
         }
     } catch (error) {
