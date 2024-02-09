@@ -12,7 +12,7 @@ const app = express();
 require('dotenv').config()
 // console.log("SECRET_KEY:", process.env.SECRET_KEY);
 
-mongoose.connect("mongodb://localhost:27017/social_media", {
+mongoose.connect(process.env.MONGO_URL, {
     useNewUrlParser: true,
     useUnifiedTopology: true
 });
